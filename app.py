@@ -56,7 +56,8 @@ if sum(st.session_state.heap_sizes) > 0:
 
     if st.button("Make Move"):
         st.session_state.heap_sizes[heap - 1] -= num_to_remove
-        st.experimental_rerun()
+        st.session_state.turn = "computer" if st.session_state.turn == "player" else "player"
+
 
 # Computer's turn
 if sum(st.session_state.heap_sizes) > 0:
@@ -64,7 +65,7 @@ if sum(st.session_state.heap_sizes) > 0:
     heap, take = best_move(st.session_state.heap_sizes)
     st.session_state.heap_sizes[heap] -= take
     st.write(f"Computer removed {take} from Heap {heap + 1}.")
-    st.experimental_rerun()
+    st.session_state.turn = "computer" if st.session_state.turn == "player" else "player"
 
 # Game Over
 if sum(st.session_state.heap_sizes) == 0:
