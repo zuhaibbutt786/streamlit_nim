@@ -3,6 +3,8 @@ import streamlit as st
 # Initialize the game state
 if "heap_sizes" not in st.session_state:
     st.session_state.heap_sizes = [3, 4, 5]
+if "turn" not in st.session_state:
+    st.session_state.turn = "player"
 
 def minimax(heap_sizes, depth, is_maximizing):
     if sum(heap_sizes) == 0:
@@ -49,25 +51,35 @@ for idx, size in enumerate(st.session_state.heap_sizes):
     st.write(f"Heap {idx + 1}: {'O' * size} ({size})")
 
 # Player's turn
-if sum(st.session_state.heap_sizes) > 0:
+if st.session_state.turn == "player" and sum(st.session_state.heap_sizes) > 0:
     st.subheader("Your Turn!")
     heap = st.selectbox("Select a heap:", options=[i + 1 for i, h in enumerate(st.session_state.heap_sizes) if h > 0])
-    num_to_remove = st.slider(f"Number to remove from Heap {heap}:", 1, st.session_state.heap_sizes[heap - 1])
+    
+    if st.session_state.heap_sizes[heap - 1] > 1:
+        num_to_remove = st.slider(
+            f"Number to remove from Heap {heap}:",
+            1,
+            st.session_state.heap_sizes[heap - 1],
+        )
+    else:
+        num_to_remove = 1
 
     if st.button("Make Move"):
         st.session_state.heap_sizes[heap - 1] -= num_to_remove
-        st.session_state.turn = "computer" if st.session_state.turn == "player" else "player"
-
+        st.session_state.turn = "computer"
 
 # Computer's turn
-if sum(st.session_state.heap_sizes) > 0:
+if st.session_state.turn == "computer" and sum(st.session_state.heap_sizes) > 0:
     st.subheader("Computer's Turn!")
     heap, take = best_move(st.session_state.heap_sizes)
     st.session_state.heap_sizes[heap] -= take
     st.write(f"Computer removed {take} from Heap {heap + 1}.")
-    st.session_state.turn = "computer" if st.session_state.turn == "player" else "player"
+    st.session_state.turn = "player"
 
 # Game Over
 if sum(st.session_state.heap_sizes) == 0:
     st.subheader("Game Over!")
-    st.write("You win!" if len(st.session_state.heap_sizes) % 2 == 1 else "Computer wins!")
+    if st.session_state.turn == "player":
+        st.write("Computer wins!")
+    else:
+        st.write("You win!")
